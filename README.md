@@ -1,8 +1,14 @@
-# Example Deployment Pipelines for Terraform with Azure DevOps
+# Example Deployment Pipeline for Terraform with Azure DevOps
 
 This repository contains very basic examples of deployment pipelines for Terraform with Azure DevOps.
 
 ## Prerequisites
+
+Requires:
+- An Azure Subscription
+- An Azure DevOps Project
+   - A Service Connection with Contributor rights to Azure Subsription
+   - Available Pipeline agents to execute the pipeline
 
 To run these pipelines, you need to set up the following resources and configurations in Azure:
 
