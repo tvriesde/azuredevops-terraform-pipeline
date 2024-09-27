@@ -1,0 +1,57 @@
+parameters:
+- name: azureServiceConnection
+  type: string
+- name: environment
+  type: string
+- name: TerraformBackendResourceGroup
+  type: string  
+- name: TerraformBackendStorageAccount
+  type: string
+- name: TerraformBackendStorageContainer
+  type: string
+- name: clientSecret
+  type: string  
+
+steps:
+- task: AzureCLI@1
+  displayName: Terraform credentials
+  inputs:
+    azureSubscription: ${{ parameters.azureServiceConnection }}
+    scriptLocation: inlineScript
+    inlineScript: |
+      set -eu
+      subscriptionId=$(az account show --query id -o tsv)
+      echo "##vso[task.setvariable variable=ARM_CLIENT_ID]$servicePrincipalId"
+      echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$subscriptionId"
+      echo "##vso[task.setvariable variable=ARM_TENANT_ID]$tenantId"
+    addSpnToEnvironment: true
+
+- task: AzureCLI@1
+  displayName: Terraform init
+  inputs:
+    azureSubscription: ${{ parameters.azureServiceConnection }}
+    scriptLocation: inlineScript
+    inlineScript: |
+      set -eux  # fail on error
+      subscriptionId=$(az account show --query id -o tsv)
+      terraform init \
+        -backend-config=storage_account_name=${{ parameters.TerraformBackendStorageAccount }} \
+        -backend-config=container_name=${{ parameters.TerraformBackendStorageContainer }} \
+        -backend-config=key=${{ parameters.environment }}.tfstate \
+        -backend-config=resource_group_name=${{ parameters.TerraformBackendResourceGroup }} \
+        -backend-config=subscription_id=$subscriptionId \
+        -backend-config=tenant_id=$tenantId \
+        -backend-config=client_id=$servicePrincipalId \
+        -backend-config=client_secret=${{ parameters.clientSecret }}
+    workingDirectory: $(Build.SourcesDirectory)/infra
+    addSpnToEnvironment: true   
+
+
+- task: AzureCLI@2
+  displayName: Destroy
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    workingDirectory: $(Build.SourcesDirectory)/infra
+    inlineScript: terraform destroy -auto-approve

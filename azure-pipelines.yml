@@ -1,0 +1,113 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables: 
+  - group: scon
+  - name: azureServiceConnection
+    value: 'scon'
+
+
+stages:
+- stage: dev
+  jobs:
+    - job: deploy
+      steps:
+      - template: .azdo/deploy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'dev'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)
+    - job: remove
+      dependsOn: deploy
+      condition: succeeded()    
+      steps:
+      - template: .azdo/destroy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'dev'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)
+          
+   
+- stage: tst
+  jobs:
+    - job: deploy
+      steps:
+      - template: .azdo/deploy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'tst'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)
+    - job: remove
+      dependsOn: deploy
+      condition: succeeded()    
+      steps:
+      - template: .azdo/destroy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'tst'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)          
+                    
+- stage: acc
+  jobs:
+    - job: deploy
+      steps:
+      - template: .azdo/deploy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'acc'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)      
+    - job: remove
+      dependsOn: deploy
+      condition: succeeded()     
+      steps:
+      - template: .azdo/destroy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'acc'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)            
+
+- stage: prd
+  jobs:
+    - job: deploy
+      steps:
+      - template: .azdo/deploy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'prd'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)   
+    - job: remove
+      dependsOn: deploy
+      condition: succeeded()     
+      steps:
+      - template: .azdo/destroy-infra.yml
+        parameters:
+          azureServiceConnection: $(azureServiceConnection)
+          environment: 'prd'
+          TerraformBackendResourceGroup: tfstate
+          TerraformBackendStorageContainer: tfstate
+          TerraformBackendStorageAccount: tfstate2689 
+          clientSecret: $(azdospn-client-secret)                 
