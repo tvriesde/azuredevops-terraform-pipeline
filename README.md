@@ -35,3 +35,7 @@ To run these pipelines, you need to set up the following resources and configura
 ## Running the Pipelines
 
 Once the prerequisites are set up, you can run the pipelines to deploy your infrastructure using Terraform.
+
+## Note
+The Destroy step can sometimes fail due to an existing issue with the Azure API sometimes being unavailable. 
+See: https://github.com/hashicorp/terraform-provider-azurerm/issues/6669
