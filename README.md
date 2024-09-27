@@ -1,6 +1,6 @@
 # Example Deployment Pipeline for Terraform with Azure DevOps
 
-This repository contains very basic examples of deployment pipelines for Terraform with Azure DevOps.
+This repository contains very basic examples of deployment pipelines for Terraform with Azure DevOps. Deploys a Virtual Machine.
 
 ## Prerequisites
 
